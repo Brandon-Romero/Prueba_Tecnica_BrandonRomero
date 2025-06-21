@@ -1,0 +1,177 @@
+<div class="credit-simulator-container">
+  <div class="header-section">
+  <h6 class="main-title">Simulador de Crédito</h6>
+</div>
+
+
+ 
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="title-icon">calculate</mat-icon>
+        Datos del Crédito
+      </mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <form (ngSubmit)="simular()" class="credit-form">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Monto del crédito</mat-label>
+            <input matInput type="number" [(ngModel)]="monto" name="monto" required>
+            <mat-icon matPrefix>attach_money</mat-icon>
+            <mat-hint>Ingresa el monto que deseas solicitar</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Tasa de interés anual (%)</mat-label>
+            <input matInput type="number" step="0.01" [(ngModel)]="tasa_anual" name="tasa" required>
+            <mat-icon matPrefix>percent</mat-icon>
+            <mat-hint>Ejemplo: 12.5</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Plazo (meses)</mat-label>
+            <input matInput type="number" [(ngModel)]="plazo_meses" name="plazo" required>
+            <mat-icon matPrefix>schedule</mat-icon>
+            <mat-hint>Número de cuotas a pagar</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Fecha de inicio</mat-label>
+            <input matInput [matDatepicker]="picker" [(ngModel)]="fecha_inicio" name="fecha" required>
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            <mat-hint>Fecha del primer pago</mat-hint>
+          </mat-form-field>
+
+        </div>
+
+        <div class="button-container">
+          <button mat-raised-button color="primary" type="submit" class="simulate-button">
+            <mat-icon>play_arrow</mat-icon>
+            Simular Crédito
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+
+  <mat-card class="results-card" *ngIf="planPagos && planPagos.length > 0">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="title-icon">assessment</mat-icon>
+        Resultados de la Simulación
+      </mat-card-title>
+      <mat-card-subtitle>Resumen de tu crédito</mat-card-subtitle>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <div class="results-grid">
+        <div class="result-item">
+          <mat-icon class="result-icon">payments</mat-icon>
+          <div class="result-content">
+            <span class="result-label">Cuota Mensual</span>
+            <span class="result-value primary-value">{{ cuota | currency }}</span>
+          </div>
+        </div>
+
+        <div class="result-item">
+          <mat-icon class="result-icon">account_balance_wallet</mat-icon>
+          <div class="result-content">
+            <span class="result-label">Total Pagado</span>
+            <span class="result-value">{{ totalPagado | currency }}</span>
+          </div>
+        </div>
+
+        <div class="result-item">
+          <mat-icon class="result-icon">trending_up</mat-icon>
+          <div class="result-content">
+            <span class="result-label">Total Intereses</span>
+            <span class="result-value accent-value">{{ totalIntereses | currency }}</span>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  
+  <mat-card class="table-card" *ngIf="planPagos?.length">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="title-icon">table_chart</mat-icon>
+        Tabla de Amortización
+      </mat-card-title>
+      <mat-card-subtitle>Detalle de cada cuota</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="table-container">
+        <mat-table [dataSource]="planPagos" class="amortization-table">
+
+          
+          <ng-container matColumnDef="numero_cuota">
+            <mat-header-cell *matHeaderCellDef class="header-cell">#</mat-header-cell>
+            <mat-cell *matCellDef="let element" class="number-cell">{{ element.numero_cuota }}</mat-cell>
+          </ng-container>
+
+          
+          <ng-container matColumnDef="fecha_pago">
+            <mat-header-cell *matHeaderCellDef class="header-cell">Fecha</mat-header-cell>
+            <mat-cell *matCellDef="let element">{{ element.fecha_pago }}</mat-cell>
+          </ng-container>
+
+          
+          <ng-container matColumnDef="cuota_total">
+            <mat-header-cell *matHeaderCellDef class="header-cell">Cuota</mat-header-cell>
+            <mat-cell *matCellDef="let element" class="currency-cell">{{ element.cuota_total | currency }}</mat-cell>
+          </ng-container>
+
+          
+          <ng-container matColumnDef="interes_mes">
+            <mat-header-cell *matHeaderCellDef class="header-cell">Interés</mat-header-cell>
+            <mat-cell *matCellDef="let element" class="currency-cell interest-cell">{{ element.interes_mes | currency }}</mat-cell>
+          </ng-container>
+
+          
+          <ng-container matColumnDef="abono_capital">
+            <mat-header-cell *matHeaderCellDef class="header-cell">Capital</mat-header-cell>
+            <mat-cell *matCellDef="let element" class="currency-cell capital-cell">{{ element.abono_capital | currency }}</mat-cell>
+          </ng-container>
+
+          
+          <ng-container matColumnDef="saldo_restante">
+            <mat-header-cell *matHeaderCellDef class="header-cell">Saldo</mat-header-cell>
+            <mat-cell *matCellDef="let element" class="currency-cell">{{ element.saldo_restante | currency }}</mat-cell>
+          </ng-container>
+
+          
+          <ng-container matColumnDef="acciones">
+            <mat-header-cell *matHeaderCellDef class="header-cell">Acciones</mat-header-cell>
+            <mat-cell *matCellDef="let element">
+              <button mat-icon-button [matMenuTriggerFor]="menu" class="action-button">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item>
+                  <mat-icon>visibility</mat-icon>
+                  <span>Ver detalle</span>
+                </button>
+                <button mat-menu-item>
+                  <mat-icon>file_download</mat-icon>
+                  <span>Exportar</span>
+                </button>
+              </mat-menu>
+            </mat-cell>
+          </ng-container>
+
+          <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"></mat-row>
+        </mat-table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
